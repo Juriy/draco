@@ -1,6 +1,6 @@
 {
   "name": "draco",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "minimalistic es2016 gamedev library",
   "main": "lib/draco.js",
   "scripts": {
