@@ -1,0 +1,30 @@
+{
+  "name": "draco",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Juriy/draco",
+  "authors": [
+    "Juriy Bura <juriy.bura@gmail.com>"
+  ],
+  "description": "A minimalistic modular gamedev framework",
+  "main": "lib/draco.js",
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "canvas",
+    "gamedev",
+    "html5",
+    "engine"
+  ],
+  "license": "ISC",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
