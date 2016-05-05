@@ -5,18 +5,25 @@ import TouchInputHandler from './input/TouchInputHandler';
 import MouseInputHandler from './input/MouseInputHandler';
 import DirtyRectangleManager from './DirtyRectangleManager';
 import ImageManager from './ImageManager';
+import GameScene from './GameScene';
 import {isTouchDevice} from './utils';
 
 export default class Engine {
 
-	constructor(id, vpWidth, vpHeight) {
-		this._canvas = document.getElementById(id);
-		this._ctx = this._canvas.getContext('2d');
+	constructor(idOrElement, vpWidth, vpHeight) {
+		let canvas = this._canvas = this._getCanvasElement(idOrElement);
+
+		if (vpWidth === undefined || vpHeight === undefined) {
+			vpWidth = canvas.width;
+			vpHeight = canvas.height;
+		}
+
+		this._ctx = canvas.getContext('2d');
 		this._scenes = {};
 		this._currentScene = null;
 		this._lastTick = Date.now();
 		this._input = isTouchDevice() ? TouchInputHandler : MouseInputHandler;
-		this._keyboard = new Keyboard(this._canvas);
+		this._keyboard = new Keyboard(canvas);
 
 		this._dirtyRects = new DirtyRectangleManager();
 		this._dirtyRects.setViewport(vpWidth, vpHeight);
@@ -25,9 +32,11 @@ export default class Engine {
 
 		this._gameContext = {
 			resourceManager: this._resourceManager,
-			width: this._canvas.width,
-			height: this._canvas.height
+			width: canvas.width,
+			height: canvas.height
 		};
+
+		this._initDefaultScene();
 	}
 
 	loadResources(resourceData, onDone) {
@@ -39,15 +48,31 @@ export default class Engine {
 		return this._resourceManager.get(name);
 	}
 
+	getScene() {
+		return this._currentScene;
+	}
+
+	runScene(id) {
+		if (!this._scenes.hasOwnProperty(id)) {
+			throw Error(`Could not find scene [${id}] to run`);
+		}
+		this._currentScene = this._scenes[id];
+		this._dirtyRects.markAllDirty();
+	}
+
+	addScene(id, scene) {
+		scene.init(this._gameContext);
+		this._scenes[id] = scene;
+		if (!this._currentScene) {
+			this.runScene(id);
+		}
+	}
+
 	scene(id, scene) {
 		if (scene === undefined) {
-			this._useScene(id);
+			this.runScene(id);
 		} else {
-			scene.init(this._gameContext);
-			this._scenes[id] = scene;
-			if (!this._currentScene) {
-				this._useScene(id);
-			}
+			this.addScene(id, scene);
 		}
 	}
 
@@ -104,8 +129,19 @@ export default class Engine {
 		this._ctx.restore();
 	}
 
-	_useScene(id) {
-		this._currentScene = this._scenes[id];
-		this._dirtyRects.markAllDirty();
+	_initDefaultScene() {
+		this.addScene('default', new GameScene());
+	}
+
+	_getCanvasElement(idOrElement) {
+		if (typeof idOrElement === 'string') {
+			return document.getElementById(idOrElement);
+		}
+
+		if (idOrElement instanceof HTMLCanvasElement) {
+			return idOrElement;
+		}
+
+		throw Error('Could not find <canvas> element to attach to Enine');
 	}
 }

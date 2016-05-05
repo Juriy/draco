@@ -1,5 +1,9 @@
 'use strict';
 
+import Rect from './Rect';
+
+import {mat3} from 'gl-matrix';
+
 export default class GameObject {
 	constructor() {
 		this._x = 0;
@@ -14,6 +18,10 @@ export default class GameObject {
 		this._anchorY = 0;
 
 		this._rot = 0;
+		this._scale = 1;
+
+		this._relativeMatrix = mat3.create();
+		this._absoulteMatrix = mat3.create();
 
 		this._scene = null;
 		this._parent = null;
@@ -25,20 +33,69 @@ export default class GameObject {
 	}
 
 	draw(fc) {
+		let ctx = fc.graphContext;
+
+		ctx.save();
+		this._applyTransforms(ctx);
+		this._renderSelf(fc);
 		this._children.forEach(it => it.draw(fc));
+		ctx.restore();
+	}
+
+	_renderSelf(fc) {
+
+	}
+
+	_applyTransforms(ctx) {
+		let anchorX = this._anchorX * this._width;
+		let anchorY = this._anchorY * this._height;
+
+		ctx.translate(this._x - anchorX, this._y - anchorY);
+
+		ctx.translate(anchorX, anchorY);
+		ctx.rotate(this._rot);
+
+		ctx.scale(this._scale, this._scale);
+		ctx.translate(-anchorX, -anchorY);
+	}
+
+	beforeAddedToParent() {
+
+	}
+
+	afterAddedToParent() {
+
+	}
+
+	beforeRemovedFromParent() {
+
+	}
+
+	afterRemovedFromParent() {
+
 	}
 
 	addChild(child) {
+		if (!child instanceof GameObject) {
+			throw Error('Child must be a GameObject');
+		}
+
+		child.beforeAddedToParent();
 		this._children.push(child);
 		child.setParent(this);
+		child.afterAddedToParent();
 	}
 
 	removeChild(child) {
 		let idx = this._children.indexOf(child);
 
 		if (idx > -1) {
+			child.beforeRemovedFromParent();
 			child.setParent(null);
-			return this._children.splice(idx, 1);
+			let removedChild = this._children.splice(idx, 1);
+
+			child.afterRemovedFromParent();
+			return removedChild;
 		}
 	}
 
@@ -104,20 +161,40 @@ export default class GameObject {
 		};
 	}
 
-	getTop() {
-		return this._y;
+	setRot(rot) {
+		this._rot = rot;
 	}
 
-	getBottom() {
-		return this._y + this._height;
+	getRot() {
+		return this._rot;
 	}
 
-	getLeft() {
-		return this._x;
+	setScale(scale) {
+		this._scale = scale;
 	}
 
-	getRight() {
-		return this._x + this._width;
+	getScale() {
+		return this._scale;
+	}
+
+	getAnchor() {
+		return {
+			x: this._anchorX,
+			y: this._anchorY
+		};
+	}
+
+	setAnchor(x, y) {
+		this._anchorX = x;
+		this._anchorY = y;
+	}
+
+	getBoundingBox() {
+		return new Rect(this._x, this._y, this._width, this._height);
+	}
+
+	getAbsoluteBoundingBox() {
+
 	}
 
 	detach() {

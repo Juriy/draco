@@ -5,7 +5,7 @@
   "main": "lib/draco.js",
   "scripts": {
     "build": "webpack --mode=build",
-    "dev": "webpack --progress --colors --mode=dev",
+    "dev": "webpack --progress --colors --mode=dev && cp lib/draco.js lib/draco.js.map examples/lib",
     "test": "mocha --compilers js:babel-core/register --colors -w ./test/*.js"
   },
   "devDependencies": {
@@ -40,5 +40,8 @@
   "bugs": {
     "url": "https://github.com/juriy/draco/issues"
   },
-  "homepage": "https://github.com/juriy/draco"
+  "homepage": "https://github.com/juriy/draco",
+  "dependencies": {
+    "gl-matrix": "^2.3.2"
+  }
 }
