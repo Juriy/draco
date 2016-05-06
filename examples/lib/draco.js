@@ -1952,10 +1952,8 @@ return /******/ (function(modules) { // webpackBootstrap
 			this._anchorY = 0;
 	
 			this._rot = 0;
-			this._scale = 1;
-	
-			this._relativeMatrix = _glMatrix.mat2d.create();
-			this._absoulteMatrix = _glMatrix.mat2d.create();
+			this._scaleX = 1;
+			this._scaleY = 1;
 	
 			this._scene = null;
 			this._parent = null;
@@ -1996,7 +1994,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				ctx.translate(anchorX, anchorY);
 				ctx.rotate(this._rot);
 	
-				ctx.scale(this._scale, this._scale);
+				ctx.scale(this._scaleX, this._scaleY);
 				ctx.translate(-anchorX, -anchorY);
 			}
 		}, {
@@ -2113,8 +2111,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			value: function move(dx, dy) {
 				this._x += dx;
 				this._y += dy;
-	
-				this._relativeMatrix = _glMatrix.mat2d.translate(this._relativeMatrix, this._relativeMatrix, _glMatrix.vec2.fromValues(dx, dy));
 			}
 		}, {
 			key: 'getPos',
@@ -2136,13 +2132,30 @@ return /******/ (function(modules) { // webpackBootstrap
 			}
 		}, {
 			key: 'setScale',
-			value: function setScale(scale) {
-				this._scale = scale;
+			value: function setScale(scaleX, scaleY) {
+				if (scaleY === undefined) {
+					scaleY = scaleX;
+				}
+				this._scaleX = scaleX;
+				this._scaleY = scaleY;
 			}
 		}, {
 			key: 'getScale',
 			value: function getScale() {
-				return this._scale;
+				return {
+					x: this._scaleX,
+					y: this._scaleY
+				};
+			}
+		}, {
+			key: 'getScaleX',
+			value: function getScaleX() {
+				return this._scaleX;
+			}
+		}, {
+			key: 'getScaleY',
+			value: function getScaleY() {
+				return this._scaleY;
 			}
 		}, {
 			key: 'getAnchor',
@@ -2183,13 +2196,26 @@ return /******/ (function(modules) { // webpackBootstrap
 		}, {
 			key: 'getRelativeMatrix',
 			value: function getRelativeMatrix() {
-				return this._relativeMatrix;
+				var mat = _glMatrix.mat2d.create();
+				var absAnchorX = this._anchorX * this._width;
+				var absAnchorY = this._anchorY * this._height;
+	
+				_glMatrix.mat2d.translate(mat, mat, _glMatrix.vec2.fromValues(this._x, this._y));
+	
+				_glMatrix.mat2d.translate(mat, mat, _glMatrix.vec2.fromValues(absAnchorX, absAnchorY));
+	
+				_glMatrix.mat2d.rotate(mat, mat, this._rot);
+				_glMatrix.mat2d.scale(mat, mat, _glMatrix.vec2.fromValues(this._scaleX, this._scaleY));
+	
+				_glMatrix.mat2d.translate(mat, mat, _glMatrix.vec2.fromValues(-absAnchorX, -absAnchorY));
+	
+				return mat;
 			}
 		}, {
 			key: 'getAbsoluteMatrix',
 			value: function getAbsoluteMatrix() {
 				var parent = this.getParent();
-				var mat = this._relativeMatrix;
+				var mat = this.getRelativeMatrix();
 	
 				if (parent === null) {
 					return mat;

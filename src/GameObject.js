@@ -18,10 +18,8 @@ export default class GameObject {
 		this._anchorY = 0;
 
 		this._rot = 0;
-		this._scale = 1;
-
-		this._relativeMatrix = mat2d.create();
-		this._absoulteMatrix = mat2d.create();
+		this._scaleX = 1;
+		this._scaleY = 1;
 
 		this._scene = null;
 		this._parent = null;
@@ -55,7 +53,7 @@ export default class GameObject {
 		ctx.translate(anchorX, anchorY);
 		ctx.rotate(this._rot);
 
-		ctx.scale(this._scale, this._scale);
+		ctx.scale(this._scaleX, this._scaleY);
 		ctx.translate(-anchorX, -anchorY);
 	}
 
@@ -159,12 +157,6 @@ export default class GameObject {
 	move(dx, dy) {
 		this._x += dx;
 		this._y += dy;
-
-		this._relativeMatrix = mat2d.translate(
-			this._relativeMatrix,
-			this._relativeMatrix,
-			vec2.fromValues(dx, dy)
-		);
 	}
 
 	getPos() {
@@ -182,12 +174,27 @@ export default class GameObject {
 		return this._rot;
 	}
 
-	setScale(scale) {
-		this._scale = scale;
+	setScale(scaleX, scaleY) {
+		if (scaleY === undefined) {
+			scaleY = scaleX;
+		}
+		this._scaleX = scaleX;
+		this._scaleY = scaleY;
 	}
 
 	getScale() {
-		return this._scale;
+		return {
+			x: this._scaleX,
+			y: this._scaleY
+		};
+	}
+
+	getScaleX() {
+		return this._scaleX;
+	}
+
+	getScaleY() {
+		return this._scaleY;
 	}
 
 	getAnchor() {
@@ -228,12 +235,26 @@ export default class GameObject {
 	}
 
 	getRelativeMatrix() {
-		return this._relativeMatrix;
+		let mat = mat2d.create();
+		let absAnchorX = this._anchorX * this._width;
+		let absAnchorY = this._anchorY * this._height;
+
+		mat2d.translate(mat, mat, vec2.fromValues(this._x, this._y));
+
+		mat2d.translate(mat, mat, vec2.fromValues(absAnchorX, absAnchorY));
+
+		mat2d.rotate(mat, mat, this._rot);
+		mat2d.scale(mat, mat, vec2.fromValues(this._scaleX, this._scaleY));
+
+		mat2d.translate(mat, mat,
+			vec2.fromValues(-absAnchorX, -absAnchorY));
+
+		return mat;
 	}
 
 	getAbsoluteMatrix() {
 		let parent = this.getParent();
-		let mat = this._relativeMatrix;
+		let mat = this.getRelativeMatrix();
 
 		if (parent === null) {
 			return mat;

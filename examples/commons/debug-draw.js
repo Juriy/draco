@@ -34,3 +34,23 @@ function debugDrawPivot(obj, fc) {
 	ctx.fill();
 	ctx.stroke();
 }
+
+function drawAbsoluteBoundingBox(obj, fc, stroke = 'red') {
+	let ctx = fc.graphContext;
+	
+	ctx.save();
+	ctx.strokeStyle = stroke;
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+	let box = obj.getAbsoluteBoundingBox();
+	ctx.beginPath();
+
+	ctx.moveTo(box[0].x, box[0].y);
+	ctx.lineTo(box[1].x, box[1].y);
+	ctx.lineTo(box[2].x, box[2].y);
+	ctx.lineTo(box[3].x, box[3].y);
+	ctx.closePath();
+	ctx.stroke();
+	ctx.restore();
+
+}

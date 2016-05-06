@@ -12,46 +12,31 @@ class Dummy extends GameObject {
 	}
 
 	_renderSelf(fc) {
-		let ctx = fc.graphContext;
-
-		ctx.fillStyle = '#222';
 		debugDraw(this, fc);
-	}
+		drawAbsoluteBoundingBox(this, fc);
+	};
 }
 
 let scene = engine.getScene();
 
 let dummy = new Dummy();
 
-dummy._renderSelf = function(fc) {
-	let ctx = fc.graphContext;
-	debugDraw(this, fc);
-
-	ctx.save();
-	ctx.strokeStyle = 'red';
-	ctx.setTransform(1, 0, 0, 1, 0, 0);
-
-	let box = this.getAbsoluteBoundingBox();
-	ctx.beginPath();
-
-	ctx.moveTo(box[0].x, box[0].y);
-	ctx.lineTo(box[1].x, box[1].y);
-	ctx.lineTo(box[2].x, box[2].y);
-	ctx.lineTo(box[3].x, box[3].y);
-	ctx.closePath();
-	ctx.stroke();
-	ctx.restore();
-};
 
 dummy.setSize(100, 30);
 dummy.setAnchor(0.5, 0.5);
 dummy.setPos(100, 100);
+dummy.setRot(0.5);
+dummy.setScale(1.3);
 
 let childDummy = new Dummy();
 childDummy.setSize(100, 30);
 childDummy.setAnchor(0.5, 0.5);
 childDummy.setPos(120, 0);
-childDummy._renderSelf = dummy._renderSelf;
+
+childDummy.setScale(1, 1.5);
+childDummy.move(10, 10);
+childDummy.setRot(0.2);
+
 dummy.addChild(childDummy);
 
 scene.addChild(dummy);

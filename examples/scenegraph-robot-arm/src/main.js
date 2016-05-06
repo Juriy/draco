@@ -31,13 +31,15 @@ class ArmSegment extends GameObject {
 
 		ctx.fill();
 		ctx.fillRect(h * 0.25, h*0.25, w - h * 0.5, h * 0.5);
+
+		drawAbsoluteBoundingBox(this, fc);
 	}
 }
 let scene = engine.getScene();
 
 let box = new Box();
 box.setSize(30, 30);
-box.setPos(389, 278);
+box.setPos(389, 248);
 scene.addChild(box);
 
 // let box2 = new Box();
@@ -49,48 +51,44 @@ scene.addChild(box);
 // x: -94, y: 273
 
 let press = new Press();
-press.setPos(-230, 273);
+press.setPos(-450, 238);
 scene.addChild(press);
 
 let seg1 = new ArmSegment();
 seg1.setSize(120, 30);
-seg1.setPos(230, 190);
-seg1.setRot(-3*Math.PI / 4);
+
+seg1.setPos(219.5, 140);
 
 let seg2 = new ArmSegment();
 seg2.setSize(100, 25);
-seg2.setPos(110, 14);
-seg2.setRot(1.5);
+seg2.setPos(100, 2.5);
 seg1.addChild(seg2);
 
 let seg3 = new ArmSegment();
 seg3.setSize(50, 20);
-seg3.setPos(90, 14);
-seg3.setRot(0.7);
+seg3.setPos(90, 2.5);
 seg2.addChild(seg3);
 
 // Fingers
 let seg4 = new ArmSegment();
 seg4.setSize(40, 14);
-seg4.setPos(43, 6);
-seg4.setRot(-0.6);
+seg4.setPos(43, 2);
 seg3.addChild(seg4);
 
 let seg41 = new ArmSegment();
 seg41.setSize(35, 10);
-seg41.setPos(37, 8);
+seg41.setPos(37, 2);
 seg41.setRot(1);
 seg4.addChild(seg41);
 
 let seg5 = new ArmSegment();
 seg5.setSize(40, 14);
-seg5.setPos(43, 12);
-seg5.setRot(0.6);
+seg5.setPos(43, 4);
 seg3.addChild(seg5);
 
 let seg51 = new ArmSegment();
 seg51.setSize(35, 10);
-seg51.setPos(37, 8);
+seg51.setPos(37, 2);
 seg51.setRot(-1);
 seg5.addChild(seg51);
 
@@ -115,6 +113,7 @@ animator1.start();
 
 const ROBOT = 1;
 const PRESS = 2;
+const PAUSE = 3;
 
 let phase = ROBOT;
 
@@ -146,13 +145,15 @@ function updateRobotPhase(fc) {
 			state++;
 
 			if (state === 1) {
+				//
 				scene.removeChild(box);
 				seg3.addChild(box);
-				box.setPos(90, 9.5);
+				box.setPos(90, -5);
+
 			} else if (state == 2) {
 				seg3.removeChild(box);
 				scene.addChild(box);
-				box.setPos(71, 278);
+				box.setPos(50, 248);
 			}
 
 			animator1.stop();
@@ -169,7 +170,7 @@ function updateRobotPhase(fc) {
 }
 
 let pressTimes = [600, 300, 600, 700, 400, 600];
-let pressPositions = [-225, -169, -169, 148, 148, -245, -245];
+let pressPositions = [-450, -400, -400, -61, -61, -450, -450];
 
 function updatePressPhase(fc) {
 
@@ -188,12 +189,12 @@ function updatePressPhase(fc) {
 				scene.removeChild(box);
 				press.addChild(box);
 				// box.setAnchor(0, 0);
-				box.setPos(465, 25);
+				box.setPos(450, 10);
 				// box.setAnchor(0.5, 0.5);
 			} else if (state === 4) {
 				press.removeChild(box);
 				scene.addChild(box);
-				box.setPos(389, 278);
+				box.setPos(389, 248);
 			}
 
 			animator1.stop();
