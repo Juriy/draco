@@ -2,7 +2,7 @@
 
 import Rect from './Rect';
 
-import {mat3} from 'gl-matrix';
+import {mat2d, vec2} from 'gl-matrix';
 
 export default class GameObject {
 	constructor() {
@@ -20,8 +20,8 @@ export default class GameObject {
 		this._rot = 0;
 		this._scale = 1;
 
-		this._relativeMatrix = mat3.create();
-		this._absoulteMatrix = mat3.create();
+		this._relativeMatrix = mat2d.create();
+		this._absoulteMatrix = mat2d.create();
 
 		this._scene = null;
 		this._parent = null;
@@ -50,7 +50,7 @@ export default class GameObject {
 		let anchorX = this._anchorX * this._width;
 		let anchorY = this._anchorY * this._height;
 
-		ctx.translate(this._x - anchorX, this._y - anchorY);
+		ctx.translate(this._x, this._y);
 
 		ctx.translate(anchorX, anchorY);
 		ctx.rotate(this._rot);
@@ -140,8 +140,7 @@ export default class GameObject {
 	}
 
 	setPos(x, y) {
-		this._x = x;
-		this._y = y;
+		this.move(x - this._x, y - this._y);
 	}
 
 	setSize(w, h) {
@@ -160,6 +159,12 @@ export default class GameObject {
 	move(dx, dy) {
 		this._x += dx;
 		this._y += dy;
+
+		this._relativeMatrix = mat2d.translate(
+			this._relativeMatrix,
+			this._relativeMatrix,
+			vec2.fromValues(dx, dy)
+		);
 	}
 
 	getPos() {
@@ -202,7 +207,42 @@ export default class GameObject {
 	}
 
 	getAbsoluteBoundingBox() {
+		let mat = this.getAbsoluteMatrix();
 
+		let p1 = vec2.fromValues(0, 0);
+		let p2 = vec2.fromValues(this._width, 0);
+		let p3 = vec2.fromValues(this._width, this._height);
+		let p4 = vec2.fromValues(0, this._height);
+
+		vec2.transformMat2d(p1, p1, mat);
+		vec2.transformMat2d(p2, p2, mat);
+		vec2.transformMat2d(p3, p3, mat);
+		vec2.transformMat2d(p4, p4, mat);
+
+		return [
+			{x: p1[0], y: p1[1]},
+			{x: p2[0], y: p2[1]},
+			{x: p3[0], y: p3[1]},
+			{x: p4[0], y: p4[1]}
+		];
+	}
+
+	getRelativeMatrix() {
+		return this._relativeMatrix;
+	}
+
+	getAbsoluteMatrix() {
+		let parent = this.getParent();
+		let mat = this._relativeMatrix;
+
+		if (parent === null) {
+			return mat;
+		}
+
+		let parentAbsolute = parent.getAbsoluteMatrix();
+		let result = mat2d.multiply(mat2d.create(), parentAbsolute, mat);
+
+		return result;
 	}
 
 	detach() {
