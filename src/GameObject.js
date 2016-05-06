@@ -131,6 +131,14 @@ export default class GameObject {
 		return this._name;
 	}
 
+	setX(x) {
+		this._x = x;
+	}
+
+	setY(y) {
+		this._y = y;
+	}
+
 	setPos(x, y) {
 		this._x = x;
 		this._y = y;
