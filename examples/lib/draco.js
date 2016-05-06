@@ -2126,6 +2126,11 @@ return /******/ (function(modules) { // webpackBootstrap
 				this._rot = rot;
 			}
 		}, {
+			key: 'rotateBy',
+			value: function rotateBy(rads) {
+				this._rot += rads;
+			}
+		}, {
 			key: 'getRot',
 			value: function getRot() {
 				return this._rot;
@@ -2138,6 +2143,11 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 				this._scaleX = scaleX;
 				this._scaleY = scaleY;
+			}
+		}, {
+			key: 'scaleBy',
+			value: function scaleBy(factor) {
+				this._scale *= factor;
 			}
 		}, {
 			key: 'getScale',
@@ -2194,6 +2204,45 @@ return /******/ (function(modules) { // webpackBootstrap
 				return [{ x: p1[0], y: p1[1] }, { x: p2[0], y: p2[1] }, { x: p3[0], y: p3[1] }, { x: p4[0], y: p4[1] }];
 			}
 		}, {
+			key: 'getAbsoluteChildrenBoundingBox',
+			value: function getAbsoluteChildrenBoundingBox() {
+				var minX = Number.MAX_VALUE;
+				var maxX = Number.MIN_VALUE;
+				var minY = Number.MAX_VALUE;
+				var maxY = Number.MIN_VALUE;
+	
+				var points = this.getAbsoluteBoundingBox();
+	
+				this._children.forEach(function (child) {
+					var box = child.getAbsoluteChildrenBoundingBox();
+	
+					points.push({ x: box.x, y: box.y });
+					points.push({ x: box.x + box.width, y: box.y });
+					points.push({ x: box.x + box.width, y: box.y + box.height });
+					points.push({ x: box.x, y: box.y + box.height });
+				});
+	
+				points.forEach(function (p) {
+					if (p.x < minX) {
+						minX = p.x;
+					}
+	
+					if (p.x > maxX) {
+						maxX = p.x;
+					}
+	
+					if (p.y < minY) {
+						minY = p.y;
+					}
+	
+					if (p.y > maxY) {
+						maxY = p.y;
+					}
+				});
+	
+				return new _Rect2.default(minX, minY, maxX - minX, maxY - minY);
+			}
+		}, {
 			key: 'getRelativeMatrix',
 			value: function getRelativeMatrix() {
 				var mat = _glMatrix.mat2d.create();
@@ -2234,6 +2283,38 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 	
 				this._parent.removeChild(this);
+			}
+		}, {
+			key: 'getAbsoluteTranslation',
+			value: function getAbsoluteTranslation() {
+				var mat = this.getAbsoluteMatrix();
+	
+				return [mat[4], mat[5]];
+			}
+		}, {
+			key: 'getAbsoluteRotation',
+			value: function getAbsoluteRotation() {
+				var mat = this.getAbsoluteMatrix();
+	
+				return -Math.atan2(-mat[1], mat[0]);
+			}
+		}, {
+			key: 'getAbsoluteScale',
+			value: function getAbsoluteScale() {
+				var mat = this.getAbsoluteMatrix();
+				var sx = Math.sqrt(mat[0] * mat[0] + mat[1] * mat[1]);
+	
+				if (mat[0] < 0) {
+					sx *= -1;
+				}
+	
+				var sy = Math.sqrt(mat[3] * mat[3] + mat[4] * mat[4]);
+	
+				if (mat[4] < 0) {
+					sy *= -1;
+				}
+	
+				return [sx, sy];
 			}
 		}]);
 	

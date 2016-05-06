@@ -52,5 +52,17 @@ function drawAbsoluteBoundingBox(obj, fc, stroke = 'red') {
 	ctx.closePath();
 	ctx.stroke();
 	ctx.restore();
+}
 
+function drawAbsoluteChildrenBoundingBox(obj, fc, stroke = 'blue') {
+	let ctx = fc.graphContext;
+
+	ctx.save();
+	ctx.strokeStyle = stroke;
+	ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+	let box = obj.getAbsoluteChildrenBoundingBox();
+	ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+	ctx.restore();
 }

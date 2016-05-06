@@ -33,9 +33,11 @@ class ArmSegment extends GameObject {
 		ctx.fillRect(h * 0.25, h*0.25, w - h * 0.5, h * 0.5);
 
 		drawAbsoluteBoundingBox(this, fc);
+		drawAbsoluteChildrenBoundingBox(this, fc);
 	}
 }
 let scene = engine.getScene();
+scene.move(0, 60);
 
 let box = new Box();
 box.setSize(30, 30);

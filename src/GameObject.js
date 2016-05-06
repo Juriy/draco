@@ -170,6 +170,10 @@ export default class GameObject {
 		this._rot = rot;
 	}
 
+	rotateBy(rads) {
+		this._rot += rads;
+	}
+
 	getRot() {
 		return this._rot;
 	}
@@ -180,6 +184,10 @@ export default class GameObject {
 		}
 		this._scaleX = scaleX;
 		this._scaleY = scaleY;
+	}
+
+	scaleBy(factor) {
+		this._scale *= factor;
 	}
 
 	getScale() {
@@ -234,6 +242,44 @@ export default class GameObject {
 		];
 	}
 
+	getAbsoluteChildrenBoundingBox() {
+		let minX = Number.MAX_VALUE;
+		let maxX = Number.MIN_VALUE;
+		let minY = Number.MAX_VALUE;
+		let maxY = Number.MIN_VALUE;
+
+		let points = this.getAbsoluteBoundingBox();
+
+		this._children.forEach((child) => {
+			let box = child.getAbsoluteChildrenBoundingBox();
+
+			points.push({x: box.x, y: box.y});
+			points.push({x: box.x + box.width, y: box.y});
+			points.push({x: box.x + box.width, y: box.y + box.height});
+			points.push({x: box.x, y: box.y + box.height});
+		});
+
+		points.forEach((p) => {
+			if (p.x < minX) {
+				minX = p.x;
+			}
+
+			if (p.x > maxX) {
+				maxX = p.x;
+			}
+
+			if (p.y < minY) {
+				minY = p.y;
+			}
+
+			if (p.y > maxY) {
+				maxY = p.y;
+			}
+		});
+
+		return new Rect(minX, minY, maxX - minX, maxY - minY);
+	}
+
 	getRelativeMatrix() {
 		let mat = mat2d.create();
 		let absAnchorX = this._anchorX * this._width;
@@ -272,6 +318,35 @@ export default class GameObject {
 		}
 
 		this._parent.removeChild(this);
+	}
+
+	getAbsoluteTranslation() {
+		let mat = this.getAbsoluteMatrix();
+
+		return [mat[4], mat[5]];
+	}
+
+	getAbsoluteRotation() {
+		let mat = this.getAbsoluteMatrix();
+
+		return -Math.atan2(-mat[1], mat[0]);
+	}
+
+	getAbsoluteScale() {
+		let mat = this.getAbsoluteMatrix();
+		let sx = Math.sqrt(mat[0] * mat[0] + mat[1] * mat[1]);
+
+		if (mat[0] < 0) {
+			sx *= -1;
+		}
+
+		let sy = Math.sqrt(mat[3] * mat[3] + mat[4] * mat[4]);
+
+		if (mat[4] < 0) {
+			sy *= -1;
+		}
+
+		return [sx, sy];
 	}
 }
 // should be static
