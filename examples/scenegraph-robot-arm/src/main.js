@@ -37,7 +37,7 @@ class ArmSegment extends GameObject {
 	}
 }
 let scene = engine.getScene();
-scene.move(0, 60);
+// scene.move(0, 60);
 
 let box = new Box();
 box.setSize(30, 30);
@@ -151,11 +151,18 @@ function updateRobotPhase(fc) {
 				scene.removeChild(box);
 				seg3.addChild(box);
 				box.setPos(90, -5);
+				box.setRot(0);
+				console.log(box.getPos());
 
 			} else if (state == 2) {
+				let absTranslation = box.getAbsoluteTranslation();
+				let absRotation = box.getAbsoluteRotation();
+
 				seg3.removeChild(box);
 				scene.addChild(box);
-				box.setPos(50, 248);
+
+				box.setRot(absRotation);
+				box.setPos(absTranslation[0], absTranslation[1]);
 			}
 
 			animator1.stop();
@@ -190,13 +197,17 @@ function updatePressPhase(fc) {
 			if (state === 2) {
 				scene.removeChild(box);
 				press.addChild(box);
-				// box.setAnchor(0, 0);
-				box.setPos(450, 10);
-				// box.setAnchor(0.5, 0.5);
+				box.setPos(480, 10);
 			} else if (state === 4) {
+				let absTranslation = box.getAbsoluteTranslation();
+				let absRotation = box.getAbsoluteRotation();
+
 				press.removeChild(box);
 				scene.addChild(box);
-				box.setPos(389, 248);
+
+				box.setRot(absRotation);
+				box.setPos(absTranslation[0], absTranslation[1]);
+
 			}
 
 			animator1.stop();

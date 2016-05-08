@@ -4,7 +4,7 @@ class Box extends draco.GameObject {
 
 	constructor() {
 		super();
-		this.setAnchor(0.5, 0.5);
+		// this.setAnchor(0.5, 0.5);
 	}
 
 	_renderSelf(fc) {
