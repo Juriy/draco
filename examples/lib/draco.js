@@ -1717,7 +1717,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 10 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
@@ -1727,89 +1727,73 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
+	var _EventEmitter2 = __webpack_require__(6);
+	
+	var _EventEmitter3 = _interopRequireDefault(_EventEmitter2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var ImageManager = function () {
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var ImageManager = function (_EventEmitter) {
+		_inherits(ImageManager, _EventEmitter);
+	
 		function ImageManager() {
 			_classCallCheck(this, ImageManager);
 	
-			this._imageQueue = [];
-			this._images = {};
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ImageManager).call(this));
+	
+			_this._store = {};
+			return _this;
 		}
 	
 		_createClass(ImageManager, [{
-			key: '_addImage',
-			value: function _addImage(key, path) {
-				this._imageQueue.push({
-					key: key,
-					path: path
-				});
-			}
-		}, {
 			key: 'load',
-			value: function load(images, onDone, onProgress) {
-				var noop = function noop() {};
-				var queue = this._imageQueue;
+			value: function load(resources) {
+				var _this2 = this;
 	
-				for (var im in images) {
-					this._addImage(im, images[im]);
-				}
+				var numResources = 0;
+				var loadedResources = 0;
 	
-				onDone = onDone || noop;
-				onProgress = onProgress || noop;
+				var onImageLoaded = function onImageLoaded(key, img, resolve) {
+					return function () {
+						loadedResources++;
+						_this2._store[key] = img;
 	
-				this._imageQueue = [];
-	
-				if (queue.length === 0) {
-					onProgress(0, 0, null, null, true);
-					return;
-				}
-	
-				var itemCounter = {
-					loaded: 0,
-					total: queue.length
+						if (loadedResources === numResources) {
+							resolve();
+						}
+					};
 				};
 	
-				for (var i = 0; i < queue.length; i++) {
-					this._loadItem(queue[i], itemCounter, onDone, onProgress);
-				}
-			}
-		}, {
-			key: '_loadItem',
-			value: function _loadItem(queueItem, itemCounter, onDone, onProgress) {
-				var self = this;
-				var img = new Image();
+				return new Promise(function (resolve, reject) {
+					var keys = Object.getOwnPropertyNames(resources);
 	
-				img.onload = function () {
-					self._images[queueItem.key] = img;
-					self._onItemLoaded(queueItem, itemCounter, onDone, onProgress, true);
-				};
+					keys.forEach(function (key) {
+						var url = resources[key];
+						var img = new Image();
 	
-				img.onerror = function () {
-					self._images[queueItem.key] = self._placeholder;
-					self._onItemLoaded(queueItem, itemCounter, onDone, onProgress, false);
-				};
-				img.src = queueItem.path;
-			}
-		}, {
-			key: '_onItemLoaded',
-			value: function _onItemLoaded(queueItem, itemCounter, onDone, onProgress, success) {
-				itemCounter.loaded++;
-				onProgress(itemCounter.loaded, itemCounter.total, queueItem.key, queueItem.path, success);
+						numResources++;
 	
-				if (itemCounter.loaded === itemCounter.total) {
-					onDone();
-				}
+						img.src = url;
+						img.onload = onImageLoaded(key, img, resolve);
+						img.onerror = reject;
+					});
+				});
 			}
 		}, {
 			key: 'get',
 			value: function get(key) {
-				return this._images[key];
+				return this._store[key];
 			}
 		}]);
 	
 		return ImageManager;
-	}();
+	}(_EventEmitter3.default);
 	
 	exports.default = ImageManager;
 	module.exports = exports['default'];
@@ -9315,8 +9299,6 @@ return /******/ (function(modules) { // webpackBootstrap
 			_this._img = img;
 			_this._width = img.width;
 			_this._height = img.height;
-			_this._isPressed = false;
-			_this._clicked = false;
 			return _this;
 		}
 	

@@ -25,24 +25,24 @@ let dummy = new Dummy();
 dummy.setSize(30, 50);
 dummy.setAnchor(0.5, 0.5);
 dummy.setPos(30, 40);
-dummy.setRot(Math.PI/4);
-dummy.setScale(1.1);
+// dummy.setRot(Math.PI/4);
+// dummy.setScale(1.1);
 
 
 let childDummy = new Dummy();
 childDummy.setSize(100, 30);
 childDummy.setAnchor(0.5, 0.5);
-childDummy.setPos(120, 0);
+childDummy.setPos(40, 0);
 //
 childDummy.move(10, 10);
 childDummy.setRot(0.2);
-childDummy.setScale(1.5);
+//childDummy.setScale(1.5);
 
 dummy.addChild(childDummy);
 
 scene.addChild(dummy);
 
-mimicWithMarker(childDummy);
+
 
 scene.update = function(fc) {
 	fc.dirtyRects.markAllDirty();
@@ -50,44 +50,42 @@ scene.update = function(fc) {
 
 engine.start();
 
+let marker = new Dummy();
+mimicWithMarker(childDummy);
+
 function mimicWithMarker(obj) {
-	let marker = new Dummy();
+
 	marker.setSize(30, 30);
 
 	// debugger;
-	let tranlation = obj.getAbsoluteTranslation();
-	let rot = obj.getAbsoluteRotation();
-	let scale = obj.getAbsoluteScale();
+	// let tranlation = obj.getAbsoluteTranslation();
+	// let rot = obj.getAbsoluteRotation();
+	// let scale = obj.getAbsoluteScale();
 
-	let mat = mat2d.create();
-	mat2d.translate(mat, mat,
-		vec2.fromValues(
-			tranlation[0],
-			tranlation[1]));
+	// console.log(tranlation);
+	// console.log(rot);
+	// console.log(scale);
 
-	mat2d.rotate(mat, mat, rot);
-	mat2d.scale(mat, mat,
-		vec2.fromValues(
-			scale[0], scale[0]
-		));
+	// marker.move(tranlation[0], tranlation[1]);
+	// marker.setRot(rot);
+	// marker.setScale(scale);
 
-	let origin = vec2.create();
-	let anchor = vec2.create();
+	marker.setPos(80, 100);
+	marker.setRot(1);
 
-	vec2.transformMat2d(origin,
-		vec2.fromValues(0, 0),
-		mat);
+	let t1 = obj.getAbsoluteTranslation();
+	let t2 = marker.getAbsoluteTranslation();
+	let t3 = [t2[0] - t1[0], t2[1] - t1[1]];
 
-	vec2.transformMat2d(anchor,
-		vec2.fromValues(15, 15),
-		mat);
+	let r1 = obj.getAbsoluteRotation();
+	let r2 = marker.getAbsoluteRotation();
+	let r3 = r2 - r1;
 
-	let dx = anchor[0] - origin[0];
-	let dy = anchor[1] - origin[1];
-
-	marker.setAnchor(0.5, 0.5);
-	marker.move(tranlation[0] - dx, tranlation[1] - dy);
-	marker.setRot(obj.getAbsoluteRotation());
-	marker.setScale(obj.getAbsoluteScale()[0]);
 	scene.addChild(marker);
+
+	scene.removeChild(marker);
+	obj.addChild(marker);
+	marker.setPos(t3[0], t3[1]);
+	marker.setRot(r3);
+
 }

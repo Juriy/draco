@@ -150,6 +150,7 @@ function updateRobotPhase(fc) {
 				//
 				scene.removeChild(box);
 				seg3.addChild(box);
+
 				box.setPos(90, -5);
 				box.setRot(0);
 				console.log(box.getPos());
@@ -221,6 +222,12 @@ function updatePressPhase(fc) {
 		animator1.setDuration(times[state]);
 		animator1.start();
 	}
+}
+
+function getRelativeTranslation(parent, child) {
+	let t1 = parent.getAbsoluteTranslation();
+	let t2 = child.getAbsoluteTranslation();
+	return [t2[0] - t1[0], t2[1] - t1[1]];
 }
 
 function interpolate(start, end, alpha) {

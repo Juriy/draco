@@ -1,76 +1,48 @@
 'use strict';
 
-export default class ImageManager {
+import EventEmitter from './EventEmitter';
+
+export default class ImageManager extends EventEmitter {
 	constructor() {
-		this._imageQueue = [];
-		this._images = {};
+		super();
+		this._store = {};
 	}
 
-	_addImage(key, path) {
-		this._imageQueue.push({
-			key: key,
-			path: path
-		});
-	};
+	load(resources) {
+		let numResources = 0;
+		let loadedResources = 0;
 
-	load(images, onDone, onProgress) {
-		let noop = () => {};
-		let queue = this._imageQueue;
+		let onImageLoaded = (key, img, resolve) => {
+			return () => {
+				loadedResources++;
+				this._store[key] = img;
 
-		for (let im in images) {
-			this._addImage(im, images[im]);
-		}
-
-		onDone = onDone || noop;
-		onProgress = onProgress || noop;
-
-		this._imageQueue = [];
-
-		if (queue.length === 0) {
-			onProgress(0, 0, null, null, true);
-			return;
-		}
-
-		let itemCounter = {
-			loaded: 0,
-			total: queue.length
+				if (loadedResources === numResources) {
+					resolve();
+				}
+			};
 		};
 
-		for (let i = 0; i < queue.length; i++) {
-			this._loadItem(queue[i], itemCounter, onDone, onProgress);
-		}
-	}
+		return new Promise(
+			(resolve, reject) => {
+				let keys = Object.getOwnPropertyNames(resources);
 
-	_loadItem(queueItem, itemCounter, onDone, onProgress) {
-		let self = this;
-		let img = new Image();
+				keys.forEach((key) => {
+					let url = resources[key];
+					let img = new Image();
 
-		img.onload = function () {
-			self._images[queueItem.key] = img;
-			self._onItemLoaded(queueItem, itemCounter,
-				onDone, onProgress, true);
-		};
+					numResources++;
 
-		img.onerror = function () {
-			self._images[queueItem.key] = self._placeholder;
-			self._onItemLoaded(queueItem, itemCounter,
-				onDone, onProgress, false);
-		};
-		img.src = queueItem.path;
-	}
-
-	_onItemLoaded(queueItem, itemCounter, onDone, onProgress, success) {
-		itemCounter.loaded++;
-		onProgress(itemCounter.loaded, itemCounter.total,
-			queueItem.key, queueItem.path, success);
-
-		if (itemCounter.loaded === itemCounter.total) {
-			onDone();
-		}
+					img.src = url;
+					img.onload = onImageLoaded(key, img, resolve);
+					img.onerror = reject;
+				});
+			}
+		);
 	}
 
 	get(key) {
-		return this._images[key];
+		return this._store[key];
 	}
 }
 
