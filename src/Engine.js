@@ -39,9 +39,8 @@ export default class Engine {
 		this._initDefaultScene();
 	}
 
-	loadResources(resourceData, onDone) {
-		this._resourceManager.load(resourceData, onDone, function onProgress() {
-		});
+	loadResources(resourceData) {
+		return this._resourceManager.load(resourceData);
 	}
 
 	getResource(name) {
