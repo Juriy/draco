@@ -4,7 +4,7 @@ import Keyboard from './input/Keyboard';
 import TouchInputHandler from './input/TouchInputHandler';
 import MouseInputHandler from './input/MouseInputHandler';
 import DirtyRectangleManager from './DirtyRectangleManager';
-import ImageManager from './ImageManager';
+import ResourceManager from './ResourceManager';
 import GameScene from './GameScene';
 import {isTouchDevice} from './utils';
 
@@ -27,7 +27,7 @@ export default class Engine {
 
 		this._dirtyRects = new DirtyRectangleManager();
 		this._dirtyRects.setViewport(vpWidth, vpHeight);
-		this._resourceManager = new ImageManager();
+		this._resourceManager = new ResourceManager();
 		this._tick = this._tick.bind(this);
 
 		this._gameContext = {
